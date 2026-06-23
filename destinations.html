@@ -999,6 +999,9 @@
                 const card = document.createElement("div");
 
                 card.className = "destination-card";
+                card.onclick = function() {
+    window.location.href = 'destination.html?id=' + place.id;
+};
 
 
                 card.innerHTML = `

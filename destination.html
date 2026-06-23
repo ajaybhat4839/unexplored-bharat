@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Gem - Unexplored Bharat</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(180deg, #0d0d0d, #1a0a00, #2d1500);
+            color: white; min-height: 100vh;
+        }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255,153,51,0.3);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .nav-logo {
+            font-size: 20px; font-weight: bold;
+            background: linear-gradient(45deg, #FF9933, #FFFFFF, #138808);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links a { color: #f0c27b; text-decoration: none; font-size: 14px; }
+        .nav-links a:hover { color: #FF9933; }
+        .hero-image {
+            width: 100%; height: 350px;
+            background: linear-gradient(135deg, #2d1500, #4a2000);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 90px; position: relative;
+        }
+        .hero-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 120px; background: linear-gradient(transparent, #1a0a00);
+        }
+        .content { max-width: 900px; margin: -50px auto 0; padding: 0 20px 40px; position: relative; }
+        .title-card {
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,153,51,0.3); border-radius: 20px;
+            padding: 30px; margin-bottom: 25px;
+        }
+        .dest-name {
+            font-size: 34px; font-weight: bold;
+            background: linear-gradient(45deg, #FF9933, #FFFFFF, #138808);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .dest-state { color: #f0c27b; font-size: 16px; margin-top: 5px; }
+        .rating-big { text-align: center; }
+        .rating-star { font-size: 28px; color: #FFD700; }
+        .rating-num { font-size: 22px; font-weight: bold; color: #FFD700; }
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px; margin: 20px 0;
+        }
+        .info-box {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,153,51,0.2);
+            border-radius: 14px; padding: 18px; text-align: center;
+        }
+        .info-icon { font-size: 28px; margin-bottom: 6px; }
+        .info-value { font-size: 15px; font-weight: bold; color: #FF9933; }
+        .info-label { font-size: 11px; color: #aaa; margin-top: 3px; }
+        .section {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,153,51,0.15);
+            border-radius: 14px; padding: 22px; margin-bottom: 18px;
+        }
+        .section h2 { color: #f0c27b; margin-bottom: 12px; font-size: 18px; }
+        .section p { color: #ccc; line-height: 1.8; font-size: 14px; }
+        .btn-primary {
+            padding: 14px 28px; background: linear-gradient(45deg, #FF9933, #ff6f00);
+            border: none; border-radius: 30px; color: white; font-size: 14px;
+            font-weight: bold; cursor: pointer; text-decoration: none;
+            display: inline-block; margin: 5px;
+        }
+        .btn-primary:hover { box-shadow: 0 0 20px rgba(255,153,51,0.5); }
+        .btn-secondary {
+            padding: 14px 28px; background: transparent;
+            border: 2px solid rgba(255,153,51,0.3); border-radius: 30px;
+            color: #f0c27b; font-size: 14px; font-weight: bold;
+            cursor: pointer; text-decoration: none; display: inline-block; margin: 5px;
+        }
+        .flag-strip { display: flex; justify-content: center; gap: 2px; padding: 25px 0; }
+        .flag-strip div { width: 70px; height: 4px; border-radius: 2px; }
+        .saffron { background: #FF9933; } .white { background: #FFFFFF; } .green { background: #138808; }
+        .footer { text-align: center; padding: 18px; color: #555; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .footer a { color: #f0c27b; text-decoration: none; }
+        .error-page { text-align: center; padding: 100px 20px; }
+        .error-page span { font-size: 70px; display: block; margin-bottom: 15px; }
+        @media (max-width: 768px) {
+            .dest-name { font-size: 24px; }
+            .hero-image { height: 220px; font-size: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">🇮🇳 Unexplored Bharat</a>
+        <div class="nav-links">
+            <a href="destinations.html">← Back to Destinations</a>
+        </div>
+    </nav>
+
+    <div class="hero-image" id="heroIcon">🏔️</div>
+    <div class="hero-overlay"></div>
+
+    <div class="content" id="content"></div>
+
+    <div class="flag-strip">
+        <div class="saffron"></div>
+        <div class="white"></div>
+        <div class="green"></div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 <a href="index.html">Unexplored Bharat</a> | 🇮🇳 Made with love for Incredible India</p>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB27SEZl6L2aDr0TCI8MIxzNjJ-45n9W6M",
+            authDomain: "unexploredbharat-9e939.firebaseapp.com",
+            projectId: "unexploredbharat-9e939",
+            storageBucket: "unexploredbharat-9e939.firebasestorage.app",
+            messagingSenderId: "589150204251",
+            appId: "1:589150204251:web:8e15203c5b3f4bc76e6a7e",
+            measurementId: "G-D9WGE2250T"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const destId = parseInt(urlParams.get('id'));
+
+        const allDestinations = [
+                        // ========== 1-5: KASHMIR ==========
+            { 
+                id:1, name:"Gurez Valley", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Untouched paradise with Kishanganga River flowing through ancient villages. Snow-capped peaks surround this hidden gem near the Line of Control. The valley remains cut off for 6 months due to heavy snowfall, preserving its pristine beauty and unique Dard-Shin culture. Ancient log houses dot the landscape, and the hospitality of locals makes every visitor feel like family.",
+                rating:4.9, icon:"🏔️",
+                season:"May to October", temp:"-5°C to 25°C",
+                reach:"180 km from Srinagar via Bandipora", stay:"Homestays & Guesthouses"
+            },
+            { 
+                id:2, name:"Bangus Valley", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Vast meadows perfect for horse riding and camping. No tourist crowds, just pure nature, wildflowers, and grazing sheep under endless blue skies. The valley is surrounded by dense pine forests and snow-capped peaks. Streams crisscross the meadows, creating a perfect setting for picnics and nature walks.",
+                rating:4.7, icon:"🌿",
+                season:"April to September", temp:"0°C to 20°C",
+                reach:"150 km from Srinagar via Handwara", stay:"Camping & Homestays"
+            },
+            { 
+                id:3, name:"Lolab Valley", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Apple orchards stretch for miles across this hidden paradise. Crystal-clear lakes reflect the Himalayan sky like nature's own mirrors. The valley is dotted with traditional Kashmiri villages where life moves at a gentle pace. Spring brings a explosion of apple blossoms, while autumn paints the valley in shades of gold and red.",
+                rating:4.8, icon:"🍎",
+                season:"March to November", temp:"2°C to 28°C",
+                reach:"120 km from Srinagar via Kupwara", stay:"Cottages & Homestays"
+            },
+            { 
+                id:4, name:"Chatpal", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Dense pine forests and offbeat trekking trails where silence is so deep you can hear your own heartbeat. Wild berries and gushing streams accompany you through this untouched paradise. The area is rich in wildlife including Himalayan black bears and musk deer. Perfect for those seeking absolute solitude in nature.",
+                rating:4.6, icon:"🌲",
+                season:"April to October", temp:"-2°C to 22°C",
+                reach:"100 km from Srinagar via Shangus", stay:"Camping & Forest Rest House"
+            },
+            { 
+                id:5, name:"Doodhpathri", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Milk-white rivers flow through emerald green meadows, giving this place its name 'Valley of Milk'. Locals say the water appears white as milk rushing over the stones. A hidden picnic spot known only to Kashmiri families, surrounded by pine forests and snow peaks. The gentle slopes are perfect for pony rides.",
+                rating:4.8, icon:"🥛",
+                season:"May to September", temp:"5°C to 22°C",
+                reach:"42 km from Srinagar via Budgam", stay:"Tented Camps & Huts"
+            },
+                        // ========== 6-10: KASHMIR ==========
+            { 
+                id:6, name:"Karnah", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Ancient border village with crumbling forts telling stories of Silk Route traders who once passed through this strategic mountain gateway centuries ago. The Gabra Valley here is a hidden gem within a hidden gem. Traditional Gujjar and Bakarwal communities add cultural richness to this remote paradise.",
+                rating:4.5, icon:"🏰",
+                season:"April to October", temp:"-5°C to 20°C",
+                reach:"170 km from Srinagar via Kupwara", stay:"Army Guesthouses & Homestays"
+            },
+            { 
+                id:7, name:"Watlab", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Serene backwaters of Wular Lake where migratory birds from Siberia dance at sunset. A birdwatcher's paradise untouched by commercial tourism. Watch endangered species like the Kashmir Stag from nearby forests venture to the water's edge. The calm waters reflect the surrounding mountains like a giant natural mirror.",
+                rating:4.6, icon:"🦆",
+                season:"October to March", temp:"-2°C to 15°C",
+                reach:"70 km from Srinagar via Sopore", stay:"Houseboats & Lakeside Huts"
+            },
+            { 
+                id:8, name:"Aharbal", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"The Niagara of Kashmir. Water thunders down 25 meters into a misty gorge surrounded by pine forests. The roar can be heard from miles away. Trek beyond the falls to discover hidden alpine lakes including Kounsarnag Lake. The surrounding meadows burst with wildflowers in spring.",
+                rating:4.7, icon:"💧",
+                season:"April to October", temp:"0°C to 22°C",
+                reach:"75 km from Srinagar via Shopian", stay:"Camping & Forest Huts"
+            },
+            { 
+                id:9, name:"Yusmarg", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"Jesus's Meadow - where legend says Jesus once visited India during his lost years. Wild horses roam freely among pine forests and rolling green meadows beneath snow peaks. The Doodhganga River flows through the valley, and the trek to frozen Nilnag Lake is an unforgettable adventure.",
+                rating:4.8, icon:"🐴",
+                season:"May to October", temp:"0°C to 20°C",
+                reach:"47 km from Srinagar via Charar-e-Sharif", stay:"Huts & Tented Camps"
+            },
+            { 
+                id:10, name:"Tulail Valley", state:"Jammu & Kashmir", region:"kashmir",
+                desc:"The last village before the Line of Control. Raw, untouched beauty where the Kishanganga River begins its journey. A land that time forgot, where traditional wooden bridges cross crystal streams and ancient Gujjar settlements dot the mountainsides. Only a handful of travelers reach here each year.",
+                rating:4.9, icon:"🗻",
+                season:"June to September", temp:"-5°C to 18°C",
+                reach:"200 km from Srinagar via Gurez", stay:"Basic Homestays & Camping"
+            },
+                        // ========== 11-15: HIMACHAL PRADESH ==========
+            { 
+                id:11, name:"Jibhi", state:"Himachal Pradesh", region:"himachal",
+                desc:"Fairytale hamlet with wooden bridges crossing crystal streams. Waterfalls at every turn and cozy treehouse homestays tucked among towering deodar trees. The Jalori Pass nearby offers stunning 360° Himalayan views. Wake up to birdsong, fall asleep to the sound of gushing water. The local trout curry is legendary.",
+                rating:4.8, icon:"🏡",
+                season:"March to June, September to November", temp:"5°C to 28°C",
+                reach:"60 km from Kullu via Banjar", stay:"Treehouses & Riverside Homestays"
+            },
+            { 
+                id:12, name:"Tirthan Valley", state:"Himachal Pradesh", region:"himachal",
+                desc:"Trout fishing paradise at the gateway to Great Himalayan National Park, a UNESCO World Heritage site. Crystal-clear river perfect for angling enthusiasts. Spot Himalayan Tahr, snow leopards, and over 180 bird species. The valley is also known for its traditional Chehni Kothi tower temple, standing tall for centuries.",
+                rating:4.9, icon:"🎣",
+                season:"March to June, October to November", temp:"8°C to 25°C",
+                reach:"65 km from Kullu via Banjar", stay:"Riverside Camps & Eco-Lodges"
+            },
+            { 
+                id:13, name:"Chitkul", state:"Himachal Pradesh", region:"himachal",
+                desc:"The last village on the Indo-Tibet border at 11,320 feet. Potato fields meet snow peaks, and the Baspa River flows right through this magical hamlet. The road to Chitkul itself is a journey through some of the most dramatic landscapes in India. Taste the world's best potatoes grown here in thin mountain air.",
+                rating:4.9, icon:"🏔️",
+                season:"May to October", temp:"-5°C to 18°C",
+                reach:"220 km from Shimla via Sangla", stay:"Homestays with Mountain Views"
+            },
+            { 
+                id:14, name:"Kalpa", state:"Himachal Pradesh", region:"himachal",
+                desc:"Apple orchards framed by the sacred Kinnaur Kailash peak. Ancient wooden temples whisper legends of gods and demons in this mountainside paradise. The changing colors of the Kinner Kailash mountain at sunrise and sunset are a photographer's dream. Local Kinnauri apples and chilies are famous across India.",
+                rating:4.7, icon:"🍎",
+                season:"April to October", temp:"0°C to 22°C",
+                reach:"230 km from Shimla via Reckong Peo", stay:"Apple Orchard Homestays"
+            },
+            { 
+                id:15, name:"Barot Valley", state:"Himachal Pradesh", region:"himachal",
+                desc:"Hidden reservoir valley where you can trek through thick forests, fish in the Uhl River, and sleep under a blanket of a million stars. The valley was developed around a hydel project, creating a unique lake-and-forest landscape. The toy train ride to Joginder Nagar is an adventure in itself.",
+                rating:4.6, icon:"⭐",
+                season:"March to June, September to November", temp:"10°C to 25°C",
+                reach:"100 km from Mandi via Joginder Nagar", stay:"Riverside Camps & Cottages"
+            },
+                        // ========== 16-20: HIMACHAL PRADESH ==========
+            { 
+                id:16, name:"Shoja", state:"Himachal Pradesh", region:"himachal",
+                desc:"360-degree Himalayan panorama from a village of just 50 houses. Sunrise here paints the entire Himalayan range in shades of gold and pink. The Jalori Pass nearby offers treks to pristine Serolsar Lake. At night, the Milky Way stretches across the sky like a river of diamonds.",
+                rating:4.8, icon:"🌄",
+                season:"April to June, October to November", temp:"2°C to 22°C",
+                reach:"70 km from Kullu via Banjar", stay:"Wooden Cottages & Homestays"
+            },
+            { 
+                id:17, name:"Shangarh", state:"Himachal Pradesh", region:"himachal",
+                desc:"Mystic meadows where an ancient temple stands alone in a vast grassland. Locals say the gods still live here, and the air vibrates with divine energy. The Shangchul Mahadev Temple is surrounded by stories of miracles. The meadow is perfect for long walks, meditation, and stargazing.",
+                rating:4.7, icon:"🛕",
+                season:"March to November", temp:"5°C to 28°C",
+                reach:"110 km from Kullu via Sainj", stay:"Eco-Camps & Village Homestays"
+            },
+            { 
+                id:18, name:"Kheerganga", state:"Himachal Pradesh", region:"himachal",
+                desc:"Natural hot springs at 13,000 feet where tired trekkers soak aching muscles under a starry Himalayan sky. The 12km trek through the Parvati Valley passes through lush forests and waterfalls. Legend says Lord Shiva's son Kartikeya meditated here for thousands of years.",
+                rating:4.9, icon:"♨️",
+                season:"May to November", temp:"-5°C to 15°C",
+                reach:"Trek from Barshaini (100 km from Kullu)", stay:"Camps & Basic Huts"
+            },
+            { 
+                id:19, name:"Prashar Lake", state:"Himachal Pradesh", region:"himachal",
+                desc:"A floating island on a sacred lake surrounded by the Dhauladhar ranges. The 13th-century pagoda-style temple here is an architectural marvel. In winter, the lake freezes over, and in summer, wildflowers carpet the surrounding meadows. The island drifts mysteriously across the water.",
+                rating:4.8, icon:"📸",
+                season:"April to December", temp:"-2°C to 20°C",
+                reach:"50 km from Mandi via Baggi", stay:"Temple Guesthouse & Camping"
+            },
+            { 
+                id:20, name:"Malana", state:"Himachal Pradesh", region:"himachal",
+                desc:"Ancient village with a unique culture, language, and democracy system. Believed to be descendants of Alexander the Great's army. Strict customs govern daily life, and visitors are treated as outsiders by ancient law. The surrounding views of Parvati Valley and the mystical energy make it unforgettable.",
+                rating:4.5, icon:"🏛️",
+                season:"April to October", temp:"5°C to 22°C",
+                reach:"Trek from Jari (90 km from Kullu)", stay:"Camps outside village limits"
+            },
+                        // ========== 21-25: UTTARAKHAND ==========
+            { 
+                id:21, name:"Munsiyari", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Panchachuli peaks dominate the skyline of this Himalayan base camp. Trek to Khaliya Top for 360° views of five snow-clad sisters standing guard over the valley. The local Johari tribe's culture, woolen crafts, and warm hospitality make this more than just a scenic destination. Rhododendron forests burst into crimson bloom every spring.",
+                rating:4.8, icon:"⛰️",
+                season:"March to June, October to November", temp:"-5°C to 20°C",
+                reach:"280 km from Kathgodam via Pithoragarh", stay:"Mountain View Homestays & Camps"
+            },
+            { 
+                id:22, name:"Chopta", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Mini Switzerland of India with endless meadows and the sacred Tungnath Temple—the highest Shiva temple in the world at 12,073 feet. A trekker's paradise with trails leading to Chandrashila summit offering views of Nanda Devi, Trishul, and Chaukhamba peaks. Camping under the stars here is an experience of a lifetime.",
+                rating:4.9, icon:"🏔️",
+                season:"April to November", temp:"-5°C to 18°C",
+                reach:"200 km from Haridwar via Ukhimath", stay:"Camps & Alpine Tents"
+            },
+            { 
+                id:23, name:"Binsar", state:"Uttarakhand", region:"uttarakhand",
+                desc:"300-kilometer panoramic Himalayan view from Zero Point. Spot Nanda Devi, Trishul, Panchachuli, and Kedarnath peaks while walking through oak and rhododendron forests. The Binsar Wildlife Sanctuary is home to leopards, barking deer, and over 200 bird species. An old British summer retreat frozen in time.",
+                rating:4.7, icon:"🔭",
+                season:"March to June, October to November", temp:"5°C to 25°C",
+                reach:"95 km from Kathgodam via Almora", stay:"Forest Rest Houses & Eco-Resorts"
+            },
+            { 
+                id:24, name:"Peora", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Hidden eco-village surrounded by fruit orchards. Birdsong replaces traffic noise, and every home offers fresh apricot jam made by local Kumaoni families. The village practices organic farming and offers visitors a chance to live the slow mountain life. Leopards are sometimes spotted on the forest edges at dusk.",
+                rating:4.6, icon:"🍑",
+                season:"Throughout the year", temp:"8°C to 28°C",
+                reach:"60 km from Kathgodam via Bhowali", stay:"Eco-Cottages & Farm Stays"
+            },
+            { 
+                id:25, name:"Kausani", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Mahatma Gandhi called this his favorite place in India during his 1929 stay. Tea gardens stretch across hillsides with the mighty Trishul peak as a permanent backdrop. The Anasakti Ashram where Gandhi stayed still stands. Sunrise here paints 350 km of Himalayan peaks in golden light.",
+                rating:4.8, icon:"🍵",
+                season:"March to June, September to December", temp:"5°C to 25°C",
+                reach:"165 km from Kathgodam via Almora", stay:"Tea Estate Bungalows & Hotels"
+            },
+                        // ========== 26-30: UTTARAKHAND ==========
+            { 
+                id:26, name:"Kanatal", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Hidden hill station perched above Mussoorie at 8,500 feet. Apple orchards, pine forests, and adventure camps make this a perfect weekend escape. The Kodia Jungle nearby offers nature walks through dense oak forests. Far from the crowds of Mussoorie, this is where locals come to breathe fresh mountain air.",
+                rating:4.5, icon:"🏕️",
+                season:"March to June, October to December", temp:"5°C to 22°C",
+                reach:"78 km from Dehradun via Mussoorie", stay:"Adventure Camps & Cottages"
+            },
+            { 
+                id:27, name:"Abbott Mount", state:"Uttarakhand", region:"uttarakhand",
+                desc:"British-era cottages hidden in a forest clearing at 7,000 feet. Only 13 families live here year-round. Time moves at the pace of a 1930s novel. The church built in 1898 still holds Sunday services. From here, you can see five Himalayan ranges stretching across the horizon.",
+                rating:4.7, icon:"🏡",
+                season:"March to June, October to December", temp:"8°C to 24°C",
+                reach:"250 km from Delhi via Lohaghat", stay:"Heritage Bungalows & Cottages"
+            },
+            { 
+                id:28, name:"Khirsu", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Untouched village with snow-capped peak views and ancient deodar forests. The silence here is so complete you can hear snow melting on distant mountains. The small market sells locally made rhododendron juice and wild honey. Perfect for those seeking absolute peace away from all tourist circuits.",
+                rating:4.6, icon:"🌲",
+                season:"March to November", temp:"5°C to 22°C",
+                reach:"120 km from Haridwar via Pauri", stay:"Forest Bungalows & Homestays"
+            },
+            { 
+                id:29, name:"Landour", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Ruskin Bond's home—a colonial-era cantonment where time stands still. Bakehouses, old churches, and winding lanes create the perfect writer's retreat above Mussoorie. Visit Char Dukan for legendary pancakes, and walk the same paths that inspired countless stories. The winterline phenomenon is visible from here.",
+                rating:4.9, icon:"✍️",
+                season:"Throughout the year", temp:"0°C to 20°C",
+                reach:"35 km from Dehradun via Mussoorie", stay:"Heritage B&Bs & Colonial Cottages"
+            },
+            { 
+                id:30, name:"Mori", state:"Uttarakhand", region:"uttarakhand",
+                desc:"Base camp for the legendary Har Ki Dun trek. Ancient villages, alpine meadows, and the Tons River make this one of Uttarakhand's best-kept adventure secrets. The valley is also the gateway to the Govind Wildlife Sanctuary, home to snow leopards and golden eagles. A paradise for trekkers and nature lovers.",
+                rating:4.7, icon:"🥾",
+                season:"April to June, September to November", temp:"5°C to 20°C",
+                reach:"190 km from Dehradun via Purola", stay:"Riverside Camps & Village Homestays"
+            },
+            // ========== 31-35: RAJASTHAN ==========
+
+{ 
+id:31, name:"Kumbhalgarh", state:"Rajasthan", region:"rajasthan",
+desc:"A massive hill fort surrounded by the Aravalli mountains. The 36 km long wall is one of the longest walls in the world. Hidden valleys, ancient temples and wildlife make this a royal secret.",
+rating:4.8, icon:"🏰",
+season:"October to March", temp:"8°C to 25°C",
+reach:"85 km from Udaipur", stay:"Heritage Hotels & Resorts"
+},
+
+{ 
+id:32, name:"Jawai", state:"Rajasthan", region:"rajasthan",
+desc:"A unique land where leopards live among ancient granite hills and local villages. The landscape of rocks, lakes and wildlife feels like another planet.",
+rating:4.7, icon:"🐆",
+season:"October to March", temp:"12°C to 28°C",
+reach:"150 km from Jodhpur", stay:"Luxury Camps"
+},
+
+{ 
+id:33, name:"Bundi", state:"Rajasthan", region:"rajasthan",
+desc:"Blue painted houses, ancient stepwells and a magnificent palace filled with paintings. A peaceful alternative to crowded Rajasthan cities.",
+rating:4.6, icon:"🕌",
+season:"October to March", temp:"10°C to 30°C",
+reach:"210 km from Jaipur", stay:"Heritage Hotels"
+},
+
+{ 
+id:34, name:"Osian", state:"Rajasthan", region:"rajasthan",
+desc:"Ancient desert town famous for beautiful temples and golden sand dunes. Watch magical sunsets away from tourist crowds.",
+rating:4.5, icon:"🐪",
+season:"October to March", temp:"15°C to 30°C",
+reach:"65 km from Jodhpur", stay:"Desert Camps"
+},
+
+{ 
+id:35, name:"Ghanerao", state:"Rajasthan", region:"rajasthan",
+desc:"A forgotten royal village near Kumbhalgarh surrounded by forests and tribal culture. Perfect for slow travel and photography.",
+rating:4.6, icon:"🌵",
+season:"October to March", temp:"10°C to 28°C",
+reach:"130 km from Udaipur", stay:"Heritage Stays"
+},
+
+
+
+// ========== 36-40: NORTH EAST ==========
+
+
+{ 
+id:36, name:"Ziro Valley", state:"Arunachal Pradesh", region:"northeast",
+desc:"A peaceful valley famous for Apatani culture, green fields and the famous Ziro music festival. Misty hills surround traditional villages.",
+rating:4.9, icon:"🌄",
+season:"March to October", temp:"10°C to 25°C",
+reach:"115 km from Itanagar", stay:"Homestays"
+},
+
+
+{ 
+id:37, name:"Tawang", state:"Arunachal Pradesh", region:"northeast",
+desc:"A Himalayan paradise with monasteries, frozen lakes and breathtaking mountain roads. One of India's most beautiful remote destinations.",
+rating:4.9, icon:"🏔️",
+season:"March to June", temp:"-5°C to 20°C",
+reach:"320 km from Tezpur", stay:"Hotels & Homestays"
+},
+
+
+{ 
+id:38, name:"Mawlynnong", state:"Meghalaya", region:"northeast",
+desc:"Known as Asia's cleanest village with living root bridges and beautiful green landscapes.",
+rating:4.7, icon:"🌿",
+season:"October to April", temp:"10°C to 25°C",
+reach:"90 km from Shillong", stay:"Village Homestays"
+},
+
+
+{ 
+id:39, name:"Dzukou Valley", state:"Nagaland", region:"northeast",
+desc:"A hidden valley famous for rolling green hills and rare flowers. A dream destination for trekkers.",
+rating:4.8, icon:"🌺",
+season:"June to September", temp:"10°C to 22°C",
+reach:"25 km from Kohima", stay:"Camping"
+},
+
+
+{ 
+id:40, name:"Majuli", state:"Assam", region:"northeast",
+desc:"The world's largest river island with unique culture, monasteries and beautiful sunsets.",
+rating:4.7, icon:"🏝️",
+season:"October to March", temp:"15°C to 28°C",
+reach:"Ferry from Jorhat", stay:"Eco Homestays"
+},
+// ========== 41-45: SOUTH INDIA ==========
+
+
+{ 
+id:41, name:"Araku Valley", state:"Andhra Pradesh", region:"south",
+desc:"A beautiful valley covered with coffee plantations, waterfalls and tribal villages. Misty mornings and green hills make it a perfect escape.",
+rating:4.7, icon:"☕",
+season:"October to March", temp:"12°C to 25°C",
+reach:"120 km from Visakhapatnam", stay:"Resorts & Homestays"
+},
+
+
+{ 
+id:42, name:"Lambasingi", state:"Andhra Pradesh", region:"south",
+desc:"Known as the Kashmir of Andhra Pradesh. A tiny hill village where winter mornings bring clouds, mist and magical views.",
+rating:4.6, icon:"🌫️",
+season:"November to February", temp:"0°C to 20°C",
+reach:"100 km from Visakhapatnam", stay:"Cottages & Camps"
+},
+
+
+{ 
+id:43, name:"Coorg", state:"Karnataka", region:"south",
+desc:"A land of coffee estates, waterfalls and forests. Experience Kodava culture and peaceful mountain landscapes.",
+rating:4.8, icon:"🌿",
+season:"October to March", temp:"15°C to 28°C",
+reach:"260 km from Bengaluru", stay:"Coffee Estate Stays"
+},
+
+
+{ 
+id:44, name:"Agumbe", state:"Karnataka", region:"south",
+desc:"The rainforest capital of India with waterfalls, dense forests and amazing sunsets over the Arabian Sea.",
+rating:4.7, icon:"🌧️",
+season:"October to February", temp:"15°C to 25°C",
+reach:"95 km from Mangalore", stay:"Forest Homestays"
+},
+
+
+{ 
+id:45, name:"Gokarna", state:"Karnataka", region:"south",
+desc:"A peaceful beach destination with hidden beaches, temples and a relaxed atmosphere away from city crowds.",
+rating:4.8, icon:"🏖️",
+season:"October to March", temp:"20°C to 32°C",
+reach:"140 km from Goa", stay:"Beach Cottages"
+},
+
+
+
+// ========== 46-50: SOUTH INDIA ==========
+
+
+{ 
+id:46, name:"Vattakanal", state:"Tamil Nadu", region:"south",
+desc:"A hidden hill village near Kodaikanal with waterfalls, forests and breathtaking valley views.",
+rating:4.6, icon:"🌄",
+season:"October to May", temp:"10°C to 25°C",
+reach:"6 km from Kodaikanal", stay:"Homestays"
+},
+
+
+{ 
+id:47, name:"Valparai", state:"Tamil Nadu", region:"south",
+desc:"A quiet mountain town surrounded by tea gardens, wildlife and untouched forests.",
+rating:4.7, icon:"🍃",
+season:"September to March", temp:"12°C to 25°C",
+reach:"110 km from Coimbatore", stay:"Tea Estate Resorts"
+},
+
+
+{ 
+id:48, name:"Wayanad", state:"Kerala", region:"south",
+desc:"Green paradise with caves, waterfalls, wildlife and ancient tribal heritage.",
+rating:4.8, icon:"🌴",
+season:"October to May", temp:"18°C to 30°C",
+reach:"85 km from Kozhikode", stay:"Nature Resorts"
+},
+
+
+{ 
+id:49, name:"Vagamon", state:"Kerala", region:"south",
+desc:"Rolling meadows, pine forests and peaceful hills make this one of Kerala's hidden gems.",
+rating:4.7, icon:"⛰️",
+season:"Throughout year", temp:"10°C to 25°C",
+reach:"100 km from Kochi", stay:"Cottages"
+},
+
+
+{ 
+id:50, name:"Ponmudi", state:"Kerala", region:"south",
+desc:"A beautiful hill station with winding roads, tea gardens and mist-covered mountains.",
+rating:4.6, icon:"🌲",
+season:"October to March", temp:"15°C to 25°C",
+reach:"60 km from Trivandrum", stay:"Hill Resorts"
+},
+// ========== 51-55: CENTRAL INDIA ==========
+
+
+{ 
+id:51, name:"Pachmarhi", state:"Madhya Pradesh", region:"central",
+desc:"The queen of Satpura mountains with waterfalls, caves and ancient forests. A peaceful hill station full of natural beauty.",
+rating:4.7, icon:"🌄",
+season:"October to June", temp:"10°C to 28°C",
+reach:"195 km from Bhopal", stay:"Resorts & Hotels"
+},
+
+
+{ 
+id:52, name:"Mandu", state:"Madhya Pradesh", region:"central",
+desc:"A forgotten medieval city with magnificent palaces, lakes and stories of ancient kings and queens.",
+rating:4.8, icon:"🏰",
+season:"October to March", temp:"12°C to 28°C",
+reach:"95 km from Indore", stay:"Heritage Hotels"
+},
+
+
+{ 
+id:53, name:"Tadoba", state:"Maharashtra", region:"central",
+desc:"A wild paradise famous for tiger sightings, dense forests and peaceful jungle landscapes.",
+rating:4.7, icon:"🐅",
+season:"October to June", temp:"15°C to 35°C",
+reach:"140 km from Nagpur", stay:"Jungle Resorts"
+},
+
+
+{ 
+id:54, name:"Bhandardara", state:"Maharashtra", region:"central",
+desc:"A hidden lake town surrounded by mountains, waterfalls and peaceful villages.",
+rating:4.6, icon:"🏞️",
+season:"September to March", temp:"12°C to 28°C",
+reach:"165 km from Mumbai", stay:"Camps & Resorts"
+},
+
+
+{ 
+id:55, name:"Matheran", state:"Maharashtra", region:"central",
+desc:"A vehicle-free hill station with red soil trails, viewpoints and beautiful forests.",
+rating:4.7, icon:"🌳",
+season:"October to May", temp:"15°C to 30°C",
+reach:"85 km from Mumbai", stay:"Hotels & Cottages"
+},
+
+
+
+// ========== 56-60: CENTRAL INDIA ==========
+
+
+{ 
+id:56, name:"Khajjiar", state:"Himachal Pradesh", region:"central",
+desc:"A magical meadow surrounded by cedar forests and mountains. Often called Mini Switzerland of India.",
+rating:4.8, icon:"🌿",
+season:"March to June", temp:"5°C to 25°C",
+reach:"25 km from Dalhousie", stay:"Hotels & Camps"
+},
+
+
+{ 
+id:57, name:"Panna", state:"Madhya Pradesh", region:"central",
+desc:"A beautiful national park with waterfalls, diamonds and wildlife adventures.",
+rating:4.6, icon:"🦌",
+season:"October to June", temp:"15°C to 32°C",
+reach:"45 km from Khajuraho", stay:"Jungle Lodges"
+},
+
+
+{ 
+id:58, name:"Chitrakoot", state:"Madhya Pradesh", region:"central",
+desc:"A spiritual forest land connected with ancient stories, waterfalls and peaceful ghats.",
+rating:4.5, icon:"🌊",
+season:"October to March", temp:"15°C to 30°C",
+reach:"130 km from Prayagraj", stay:"Hotels & Dharamshalas"
+},
+
+
+{ 
+id:59, name:"Amarkantak", state:"Madhya Pradesh", region:"central",
+desc:"The origin place of Narmada River surrounded by forests, temples and natural beauty.",
+rating:4.7, icon:"💧",
+season:"October to March", temp:"10°C to 28°C",
+reach:"230 km from Jabalpur", stay:"Guesthouses"
+},
+
+
+{ 
+id:60, name:"Kanha", state:"Madhya Pradesh", region:"central",
+desc:"One of India's most beautiful forests famous for wildlife, meadows and tiger conservation.",
+rating:4.8, icon:"🐯",
+season:"October to June", temp:"10°C to 35°C",
+reach:"160 km from Jabalpur", stay:"Forest Resorts"
+},
+// ========== 61-65: EAST INDIA ==========
+
+
+{ 
+id:61, name:"Sandakphu", state:"West Bengal", region:"east",
+desc:"The highest point of West Bengal with views of Everest and Kanchenjunga. A dream trek through forests and mountain villages.",
+rating:4.9, icon:"🏔️",
+season:"October to May", temp:"-5°C to 15°C",
+reach:"From Manebhanjan trek route", stay:"Mountain Lodges"
+},
+
+
+{ 
+id:62, name:"Dooars", state:"West Bengal", region:"east",
+desc:"A land of forests, rivers and wildlife at the Himalayan foothills. Perfect for nature lovers.",
+rating:4.7, icon:"🐘",
+season:"October to April", temp:"15°C to 28°C",
+reach:"160 km from Siliguri", stay:"Forest Resorts"
+},
+
+
+{ 
+id:63, name:"Gopalpur", state:"Odisha", region:"east",
+desc:"A peaceful beach town with golden sands and old colonial charm away from crowds.",
+rating:4.5, icon:"🏖️",
+season:"October to March", temp:"20°C to 30°C",
+reach:"170 km from Bhubaneswar", stay:"Beach Hotels"
+},
+
+
+{ 
+id:64, name:"Daringbadi", state:"Odisha", region:"east",
+desc:"The Kashmir of Odisha with pine forests, coffee gardens and misty hills.",
+rating:4.7, icon:"🌲",
+season:"October to March", temp:"5°C to 25°C",
+reach:"250 km from Bhubaneswar", stay:"Homestays"
+},
+
+
+{ 
+id:65, name:"Simlipal", state:"Odisha", region:"east",
+desc:"A huge forest area with waterfalls, elephants and untouched wilderness.",
+rating:4.6, icon:"🌳",
+season:"November to June", temp:"15°C to 32°C",
+reach:"200 km from Bhubaneswar", stay:"Forest Lodges"
+},
+
+
+
+// ========== 66-70: EAST INDIA ==========
+
+
+{ 
+id:66, name:"Kalimpong", state:"West Bengal", region:"east",
+desc:"A peaceful Himalayan town famous for monasteries, flowers and mountain views.",
+rating:4.7, icon:"🏞️",
+season:"March to May", temp:"10°C to 25°C",
+reach:"75 km from Siliguri", stay:"Hotels & Homestays"
+},
+
+
+{ 
+id:67, name:"Hampi", state:"Karnataka", region:"east",
+desc:"Ancient ruins, giant stones and lost kingdoms create a magical landscape.",
+rating:4.9, icon:"🏛️",
+season:"October to February", temp:"15°C to 30°C",
+reach:"350 km from Bengaluru", stay:"Guesthouses"
+},
+
+
+{ 
+id:68, name:"Gandikota", state:"Andhra Pradesh", region:"east",
+desc:"India's Grand Canyon with dramatic cliffs and the Pennar River below.",
+rating:4.8, icon:"⛰️",
+season:"October to March", temp:"15°C to 30°C",
+reach:"280 km from Bengaluru", stay:"Camps & Hotels"
+},
+
+
+{ 
+id:69, name:"Lonar Lake", state:"Maharashtra", region:"east",
+desc:"A rare meteor crater lake surrounded by forests and ancient temples.",
+rating:4.6, icon:"🌋",
+season:"October to March", temp:"18°C to 32°C",
+reach:"150 km from Aurangabad", stay:"Hotels"
+},
+
+
+{ 
+id:70, name:"Chopta Chandrashila", state:"Uttarakhand", region:"east",
+desc:"A high altitude trek offering breathtaking Himalayan summit views.",
+rating:4.9, icon:"🥾",
+season:"April to November", temp:"-5°C to 18°C",
+reach:"From Chopta trek route", stay:"Camps"
+},
+// ========== 71-75: NORTH EAST INDIA ==========
+
+
+{ 
+id:71, name:"Ziro Valley", state:"Arunachal Pradesh", region:"northeast",
+desc:"A peaceful valley famous for Apatani culture, rice fields and green hills. A perfect escape into tribal life and nature.",
+rating:4.8, icon:"🌾",
+season:"March to October", temp:"10°C to 25°C",
+reach:"115 km from Itanagar", stay:"Homestays"
+},
+
+
+{ 
+id:72, name:"Tawang", state:"Arunachal Pradesh", region:"northeast",
+desc:"A Himalayan paradise with monasteries, lakes and snow-covered mountains near the Indo-Tibet border.",
+rating:4.9, icon:"🏔️",
+season:"March to June", temp:"-5°C to 20°C",
+reach:"320 km from Tezpur", stay:"Hotels & Homestays"
+},
+
+
+{ 
+id:73, name:"Mechuka", state:"Arunachal Pradesh", region:"northeast",
+desc:"A hidden valley with wooden houses, rivers and untouched mountain landscapes.",
+rating:4.8, icon:"🏡",
+season:"April to October", temp:"5°C to 20°C",
+reach:"180 km from Along", stay:"Village Stays"
+},
+
+
+{ 
+id:74, name:"Dzükou Valley", state:"Nagaland", region:"northeast",
+desc:"A magical valley of flowers with rolling green hills and peaceful trekking trails.",
+rating:4.9, icon:"🌸",
+season:"June to September", temp:"10°C to 25°C",
+reach:"25 km from Kohima", stay:"Camping"
+},
+
+
+{ 
+id:75, name:"Mawlynnong", state:"Meghalaya", region:"northeast",
+desc:"One of Asia's cleanest villages surrounded by waterfalls, forests and living root bridges.",
+rating:4.7, icon:"🌿",
+season:"October to May", temp:"15°C to 25°C",
+reach:"90 km from Shillong", stay:"Homestays"
+},
+
+
+
+// ========== 76-80: NORTH EAST INDIA ==========
+
+
+{ 
+id:76, name:"Cherrapunji", state:"Meghalaya", region:"northeast",
+desc:"Land of waterfalls, caves and clouds. Famous for some of the world's highest rainfall.",
+rating:4.8, icon:"🌧️",
+season:"October to May", temp:"10°C to 25°C",
+reach:"55 km from Shillong", stay:"Resorts"
+},
+
+
+{ 
+id:77, name:"Dawki", state:"Meghalaya", region:"northeast",
+desc:"Crystal clear river waters and peaceful border landscapes make this place unforgettable.",
+rating:4.8, icon:"💎",
+season:"October to April", temp:"15°C to 28°C",
+reach:"80 km from Shillong", stay:"Camps"
+},
+
+
+{ 
+id:78, name:"Majuli", state:"Assam", region:"northeast",
+desc:"The world's largest river island with unique culture, monasteries and traditional art.",
+rating:4.7, icon:"🏝️",
+season:"October to March", temp:"15°C to 28°C",
+reach:"Ferry from Jorhat", stay:"Island Homestays"
+},
+
+
+{ 
+id:79, name:"Dzukou Lake", state:"Manipur", region:"northeast",
+desc:"A hidden mountain lake surrounded by untouched forests and beautiful trekking routes.",
+rating:4.6, icon:"💧",
+season:"October to April", temp:"8°C to 22°C",
+reach:"Near Senapati", stay:"Camping"
+},
+
+
+{ 
+id:80, name:"Aizawl", state:"Mizoram", region:"northeast",
+desc:"A peaceful hill city with beautiful views, local culture and quiet mountain roads.",
+rating:4.5, icon:"🌄",
+season:"October to March", temp:"12°C to 25°C",
+reach:"Capital city of Mizoram", stay:"Hotels"
+},
+// ========== 81-85: WEST INDIA ==========
+
+
+{ 
+id:81, name:"Dhanaulti", state:"Uttarakhand", region:"west",
+desc:"A quiet hill escape surrounded by forests, fresh air and peaceful mountain views away from crowded tourist spots.",
+rating:4.6, icon:"🌲",
+season:"March to June", temp:"10°C to 25°C",
+reach:"60 km from Dehradun", stay:"Camps & Cottages"
+},
+
+
+{ 
+id:82, name:"Mount Abu", state:"Rajasthan", region:"west",
+desc:"Rajasthan's only hill station with lakes, temples and beautiful sunset points.",
+rating:4.7, icon:"⛰️",
+season:"October to March", temp:"10°C to 28°C",
+reach:"165 km from Udaipur", stay:"Hotels"
+},
+
+
+{ 
+id:83, name:"Kumbhalgarh", state:"Rajasthan", region:"west",
+desc:"A historic fort surrounded by Aravalli forests and wildlife sanctuary.",
+rating:4.8, icon:"🏰",
+season:"October to March", temp:"12°C to 30°C",
+reach:"85 km from Udaipur", stay:"Heritage Hotels"
+},
+
+
+{ 
+id:84, name:"Saputara", state:"Gujarat", region:"west",
+desc:"A peaceful hill station with lakes, forests and tribal culture.",
+rating:4.5, icon:"🌿",
+season:"October to February", temp:"12°C to 28°C",
+reach:"250 km from Ahmedabad", stay:"Resorts"
+},
+
+
+{ 
+id:85, name:"Toranmal", state:"Maharashtra", region:"west",
+desc:"A hidden hill station with lakes, waterfalls and untouched forests.",
+rating:4.6, icon:"🌄",
+season:"June to February", temp:"10°C to 25°C",
+reach:"300 km from Mumbai", stay:"Cottages"
+},
+
+
+
+// ========== 86-90: DESERT & CULTURE ==========
+
+
+{ 
+id:86, name:"Jaisalmer Desert", state:"Rajasthan", region:"desert",
+desc:"Golden dunes, desert camps and magical sunsets in the heart of Thar desert.",
+rating:4.8, icon:"🏜️",
+season:"October to March", temp:"8°C to 28°C",
+reach:"560 km from Jaipur", stay:"Desert Camps"
+},
+
+
+{ 
+id:87, name:"Osian", state:"Rajasthan", region:"desert",
+desc:"Ancient desert town with beautiful temples and peaceful sand dunes.",
+rating:4.6, icon:"🛕",
+season:"October to March", temp:"12°C to 30°C",
+reach:"65 km from Jodhpur", stay:"Heritage Stays"
+},
+
+
+{ 
+id:88, name:"Rann of Kutch", state:"Gujarat", region:"desert",
+desc:"A white salt desert that glows under moonlight with amazing cultural festivals.",
+rating:4.9, icon:"🌙",
+season:"November to February", temp:"10°C to 25°C",
+reach:"400 km from Ahmedabad", stay:"Tents"
+},
+
+
+{ 
+id:89, name:"Dholavira", state:"Gujarat", region:"desert",
+desc:"Ancient Indus Valley civilization site hidden in the Great Rann of Kutch.",
+rating:4.7, icon:"🏺",
+season:"October to March", temp:"15°C to 30°C",
+reach:"250 km from Bhuj", stay:"Guesthouses"
+},
+
+
+{ 
+id:90, name:"Mandawa", state:"Rajasthan", region:"desert",
+desc:"A forgotten town famous for painted havelis and old Rajasthani heritage.",
+rating:4.6, icon:"🎨",
+season:"October to March", temp:"12°C to 28°C",
+reach:"190 km from Jaipur", stay:"Heritage Hotels"
+},
+function displayDestinations(dest){
+
+const content = document.getElementById("content");
+
+if(!dest){
+
+content.innerHTML = `
+<div class="error-page">
+<span>😔</span>
+<h2>Destination Not Found</h2>
+<a class="btn-primary" href="destinations.html">
+Go Back
+</a>
+</div>`;
+
+return;
+
+}
+
+
+document.getElementById("heroIcon").innerHTML = dest.icon;
+
+
+content.innerHTML = `
+
+<div class="title-card">
+
+<div class="dest-name">
+${dest.name}
+</div>
+
+<div class="dest-state">
+${dest.state}
+</div>
+
+
+<div class="rating-big">
+
+<div class="rating-star">
+⭐⭐⭐⭐⭐
+</div>
+
+<div class="rating-num">
+${dest.rating}/5
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="info-grid">
+
+
+<div class="info-box">
+<div class="info-icon">🌤️</div>
+<div class="info-value">${dest.season}</div>
+<div class="info-label">Best Season</div>
+</div>
+
+
+<div class="info-box">
+<div class="info-icon">🌡️</div>
+<div class="info-value">${dest.temp}</div>
+<div class="info-label">Temperature</div>
+</div>
+
+
+<div class="info-box">
+<div class="info-icon">🚗</div>
+<div class="info-value">${dest.reach}</div>
+<div class="info-label">How To Reach</div>
+</div>
+
+
+<div class="info-box">
+<div class="info-icon">🏕️</div>
+<div class="info-value">${dest.stay}</div>
+<div class="info-label">Stay</div>
+</div>
+
+
+</div>
+
+
+
+<div class="section">
+
+<h2>About This Hidden Gem</h2>
+
+<p>
+${dest.desc}
+</p>
+
+</div>
+
+
+
+<div style="text-align:center">
+
+<a href="destinations.html" class="btn-secondary">
+← Explore More
+</a>
+
+</div>
+
+`;
+
+}
+
+
+
+const selectedDestination = allDestinations.find(
+d => d.id === destId
+);
+
+
+displayDestinations(selectedDestination);
+</script>
+
+</body>
+</html>
