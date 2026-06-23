@@ -237,22 +237,23 @@
         // CHECK USER & LOAD DATA
         // ============================================
         auth.onAuthStateChanged((user) => {
-            if (user) {
-                // User is logged in
-                const name = user.displayName || 'Explorer';
-                const email = user.email || '';
-                const initial = name.charAt(0).toUpperCase();
-                
-                document.getElementById('displayName').textContent = name;
-                document.getElementById('userEmail').textContent = email;
-                document.getElementById('navUsername').textContent = name;
-                document.getElementById('userInitial').textContent = initial;
-                
-                console.log('✅ User logged in:', email);
-            } else {
-                // No user, redirect to sign in
-                window.location.href = 'signin.html';
-            }
+    if (user) {
+        // Check if email is verified
+        if (!user.emailVerified) {
+            // Not verified - show message and sign out
+            alert('⚠️ Please verify your email first. Check your inbox!');
+            auth.signOut();
+            window.location.href = 'signin.html';
+            return;
+        }
+        
+        // User is logged in AND verified
+        const name = user.displayName || 'Explorer';
+        ...
+    } else {
+        window.location.href = 'signin.html';
+    }
+});
         });
 
         // ============================================

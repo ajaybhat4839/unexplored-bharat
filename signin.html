@@ -411,13 +411,17 @@
 
             try {
                 const result = await auth.createUserWithEmailAndPassword(email, password);
-                await result.user.updateProfile({ displayName: name });
-                
-                showMessage('signupMessage', '✅ Account created! Welcome, ' + name + '! 🇮🇳');
-                
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+await result.user.updateProfile({ displayName: name });
+
+// Send verification email
+await result.user.sendEmailVerification();
+
+showMessage('signupMessage', '📧 Verification email sent! Check your inbox.');
+
+// DO NOT redirect to dashboard yet
+// User must verify email first
+
+} catch (error) {
                 
             } catch (error) {
                 let message = 'Something went wrong.';
@@ -455,6 +459,19 @@
                 // window.location.href = 'dashboard.html';
             }
         });
+        <button onclick="resendVerification()" style="background: transparent; border: none; color: #f0c27b; cursor: pointer; margin-top: 10px;">
+    Resend verification email
+</button>
+function resendVerification() {
+    const user = auth.currentUser;
+    if (user && !user.emailVerified) {
+        user.sendEmailVerification()
+            .then(() => alert('📧 Verification email resent!'))
+            .catch(() => alert('❌ Error. Try again later.'));
+    } else {
+        alert('No user found or already verified.');
+    }
+}
     </script>
 </body>
 </html>
