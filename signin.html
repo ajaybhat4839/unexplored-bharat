@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Unexplored Bharat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a0a00, #2d1500, #4a2000);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 153, 51, 0.3);
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 420px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #FF9933, #FFFFFF, #138808);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #f0c27b;
+            font-size: 14px;
+            margin-bottom: 35px;
+            font-style: italic;
+        }
+
+        .tab-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            margin-bottom: 25px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: #aaa;
+            border: none;
+            background: transparent;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #FF9933, #ff6f00);
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #FF9933;
+        }
+
+        .input-group input::placeholder {
+            color: #777;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .otp-box {
+            width: 50px;
+            height: 55px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            outline: none;
+        }
+
+        .otp-box:focus {
+            border-color: #FF9933;
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #FF9933, #ff6f00);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .main-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 153, 51, 0.5);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #777;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 13px;
+        }
+
+        .social-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: transparent;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-msg {
+            color: #4caf50;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .error-msg {
+            color: #ff5252;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .flag-strip {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .flag-strip div {
+            width: 60px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .saffron { background: #FF9933; }
+        .white { background: #FFFFFF; }
+        .green { background: #138808; }
+
+        .back-link {
+            color: #f0c27b;
+            text-decoration: none;
+            font-size: 13px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo">Unexplored Bharat</div>
+        <p class="subtitle">Discover India's Hidden Soul</p>
+
+        <!-- Tab Switcher -->
+        <div class="tab-container">
+            <button class="tab active" id="signInTab" onclick="switchTab('signin')">Sign In</button>
+            <button class="tab" id="signUpTab" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <form id="signinForm">
+            <div class="input-group">
+                <label>Email or Phone Number</label>
+                <input type="text" id="signinInput" placeholder="Enter email or phone number" required>
+            </div>
+            <div class="input-group" id="signinPasswordGroup">
+                <label>Password</label>
+                <input type="password" id="signinPassword" placeholder="Enter your password">
+            </div>
+            <button type="submit" class="main-btn">Sign In →</button>
+        </form>
+
+        <!-- SIGN UP FORM (Hidden by default) -->
+        <form id="signupForm" class="hidden">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="signupName" placeholder="Enter your full name" required>
+            </div>
+            <div class="input-group">
+                <label>Email or Phone Number</label>
+                <input type="text" id="signupInput" placeholder="Enter email or phone number" required>
+            </div>
+            <div class="input-group" id="signupPasswordGroup">
+                <label>Create Password</label>
+                <input type="password" id="signupPassword" placeholder="Min. 8 characters">
+            </div>
+            <div class="input-group hidden" id="otpGroup">
+                <label>Enter OTP sent to your phone</label>
+                <div class="otp-container">
+                    <input type="text" class="otp-box" maxlength="1" id="otp1">
+                    <input type="text" class="otp-box" maxlength="1" id="otp2">
+                    <input type="text" class="otp-box" maxlength="1" id="otp3">
+                    <input type="text" class="otp-box" maxlength="1" id="otp4">
+                    <input type="text" class="otp-box" maxlength="1" id="otp5">
+                    <input type="text" class="otp-box" maxlength="1" id="otp6">
+                </div>
+                <button type="button" class="main-btn" onclick="verifyOTP()" style="margin-top: 15px;">Verify OTP</button>
+            </div>
+            <button type="submit" class="main-btn" id="signupBtn">Continue →</button>
+            <p class="success-msg hidden" id="successMsg">✅ Account created successfully! Welcome to Unexplored Bharat!</p>
+            <p class="error-msg hidden" id="errorMsg"></p>
+        </form>
+
+        <!-- Divider -->
+        <div class="divider"><span>or continue with</span></div>
+
+        <!-- Social Buttons -->
+        <button class="social-btn" onclick="alert('Google Sign In coming soon!')">
+            🔵 Continue with Google
+        </button>
+        <button class="social-btn" onclick="alert('Facebook Sign In coming soon!')">
+            🔷 Continue with Facebook
+        </button>
+
+        <!-- Flag -->
+        <div class="flag-strip">
+            <div class="saffron"></div>
+            <div class="white"></div>
+            <div class="green"></div>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        // Switch between Sign In and Sign Up tabs
+        function switchTab(tab) {
+            const signinTab = document.getElementById('signInTab');
+            const signupTab = document.getElementById('signUpTab');
+            const signinForm = document.getElementById('signinForm');
+            const signupForm = document.getElementById('signupForm');
+
+            if (tab === 'signin') {
+                signinTab.classList.add('active');
+                signupTab.classList.remove('active');
+                signinForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            } else {
+                signupTab.classList.add('active');
+                signinTab.classList.remove('active');
+                signupForm.classList.remove('hidden');
+                signinForm.classList.add('hidden');
+            }
+        }
+
+        // Detect if input is email or phone
+        function isEmail(input) {
+            return input.includes('@');
+        }
+
+        function isPhone(input) {
+            return /^\d{10,}$/.test(input.replace(/[\s\-\(\)]/g, ''));
+        }
+
+        // SIGN IN LOGIC
+        document.getElementById('signinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('signinInput').value.trim();
+
+            if (!input) {
+                alert('Please enter email or phone number');
+                return;
+            }
+
+            if (isEmail(input)) {
+                const password = document.getElementById('signinPassword').value;
+                if (!password) {
+                    alert('Please enter your password');
+                    return;
+                }
+                alert('✅ Signed in with Email!\nWelcome back to Unexplored Bharat!');
+            } else if (isPhone(input)) {
+                alert('📱 OTP sent to ' + input + '\n(Simulated - check console)');
+                console.log('OTP for ' + input + ': 472891');
+            } else {
+                alert('⚠️ Please enter a valid email or 10-digit phone number');
+            }
+        });
+
+        // SIGN UP LOGIC
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value.trim();
+            const input = document.getElementById('signupInput').value.trim();
+            const passwordGroup = document.getElementById('signupPasswordGroup');
+            const otpGroup = document.getElementById('otpGroup');
+            const signupBtn = document.getElementById('signupBtn');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!name || !input) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (isEmail(input)) {
+                const password = document.getElementById('signupPassword').value;
+                if (!password || password.length < 8) {
+                    alert('Password must be at least 8 characters');
+                    return;
+                }
+                successMsg.classList.remove('hidden');
+                errorMsg.classList.add('hidden');
+                alert('✅ Account created with Email!\nWelcome, ' + name + '! 🇮🇳');
+            } else if (isPhone(input)) {
+                // Hide password, show OTP
+                passwordGroup.classList.add('hidden');
+                otpGroup.classList.remove('hidden');
+                signupBtn.classList.add('hidden');
+                alert('📱 OTP sent to ' + input + '\nFor demo, enter: 4 7 2 8 9 1');
+                console.log('OTP for ' + input + ': 472891');
+            } else {
+                errorMsg.textContent = '⚠️ Please enter a valid email or 10-digit phone number';
+                errorMsg.classList.remove('hidden');
+            }
+        });
+
+        // OTP VERIFICATION
+        function verifyOTP() {
+            const otp = [
+                document.getElementById('otp1').value,
+                document.getElementById('otp2').value,
+                document.getElementById('otp3').value,
+                document.getElementById('otp4').value,
+                document.getElementById('otp5').value,
+                document.getElementById('otp6').value,
+            ].join('');
+
+            if (otp === '472891') {
+                document.getElementById('successMsg').classList.remove('hidden');
+                document.getElementById('otpGroup').classList.add('hidden');
+                alert('✅ Phone verified! Welcome to Unexplored Bharat! 🇮🇳');
+            } else {
+                alert('❌ Invalid OTP. Please try again.\nHint: 472891');
+            }
+        }
+
+        // Auto-focus next OTP box
+        document.querySelectorAll('.otp-box').forEach((box, index, boxes) => {
+            box.addEventListener('input', () => {
+                if (box.value.length === 1 && index < boxes.length - 1) {
+                    boxes[index + 1].focus();
+                }
+            });
+        });
+
+        // Real-time detection on signup input
+        document.getElementById('signupInput').addEventListener('input', function() {
+            const val = this.value.trim();
+            const passwordGroup = document.getElementById('signupPasswordGroup');
+            const otpGroup = document.getElementById('otpGroup');
+            const signupBtn = document.getElementById('signupBtn');
+
+            if (isEmail(val)) {
+                passwordGroup.classList.remove('hidden');
+                otpGroup.classList.add('hidden');
+                signupBtn.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
