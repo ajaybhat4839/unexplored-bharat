@@ -91,9 +91,28 @@
             box-shadow: 0 0 20px rgba(255,153,51,0.5);
         }
         
+        .signin-link {
+            color: #f0c27b;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 25px;
+            border: 2px solid #f0c27b;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+        
+        .signin-link:hover {
+            background: rgba(255,153,51,0.2);
+            border-color: #FF9933;
+            color: #FF9933;
+        }
+        
         .small-text {
             color: #aaa;
             font-size: 14px;
+            margin-top: 20px;
         }
         
         .flag-strip {
@@ -112,18 +131,7 @@
         .saffron { background: #FF9933; }
         .white { background: #FFFFFF; }
         .green { background: #138808; }
-   .signin-link {
-    color: #f0c27b;
-    text-decoration: none;
-    font-size: 15px;
-    display: block;
-    margin-top: 12px;
-    transition: color 0.3s;
-}
-.signin-link:hover {
-    color: #FF9933;
-}
-   </style>
+    </style>
 </head>
 <body>
     <div class="container">
@@ -136,12 +144,10 @@
             <input type="email" placeholder="Enter your email for early access">
             <button>Notify Me</button>
         </div>
-        <a href="signin.html" style="color: #f0c27b; text-decoration: none; font-size: 14px; display: block; margin-top: 15px;">
-    Already a member? Sign In →
-</a>
+        
+        <a href="signin.html" class="signin-link">🔐 Sign In / Sign Up</a>
         
         <p class="small-text">Be the first to explore India's hidden gems. 🌏</p>
-        <a href="signin.html" class="signin-link">Already a member? Sign In →</a>
         
         <div class="flag-strip">
             <div class="saffron"></div>

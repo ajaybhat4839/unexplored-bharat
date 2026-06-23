@@ -5,16 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Unexplored Bharat</title>
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Georgia', serif;
@@ -61,16 +56,9 @@
         }
 
         .tab {
-            flex: 1;
-            padding: 12px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.3s;
-            color: #aaa;
-            border: none;
-            background: transparent;
+            flex: 1; padding: 12px; border-radius: 30px; cursor: pointer;
+            font-size: 14px; font-weight: bold; transition: all 0.3s;
+            color: #aaa; border: none; background: transparent;
         }
 
         .tab.active {
@@ -143,8 +131,7 @@
             color: #777;
         }
 
-        .divider::before,
-        .divider::after {
+        .divider::before, .divider::after {
             content: '';
             flex: 1;
             height: 1px;
@@ -198,6 +185,20 @@
             color: #ff5252;
         }
 
+        .link-btn {
+            background: transparent;
+            border: none;
+            color: #f0c27b;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            text-decoration: underline;
+        }
+
+        .link-btn:hover {
+            color: #FF9933;
+        }
+
         .flag-strip {
             margin-top: 30px;
             display: flex;
@@ -226,21 +227,6 @@
         .back-link:hover {
             text-decoration: underline;
         }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -249,7 +235,6 @@
         <div class="logo">Unexplored Bharat</div>
         <p class="subtitle">Discover India's Hidden Soul</p>
 
-        <!-- Tab Switcher -->
         <div class="tab-container">
             <button class="tab active" id="signInTab" onclick="switchTab('signin')">Sign In</button>
             <button class="tab" id="signUpTab" onclick="switchTab('signup')">Sign Up</button>
@@ -281,21 +266,19 @@
             </div>
             <div class="input-group">
                 <label>Password</label>
-                <input type="password" id="signupPassword" placeholder="Min. 8 characters" required>
+                <input type="password" id="signupPassword" placeholder="Min. 6 characters" required>
             </div>
             <button type="submit" class="main-btn" id="signupBtn">Create Account →</button>
+            <button type="button" class="link-btn hidden" id="resendBtn" onclick="resendVerification()">
+                Resend verification email
+            </button>
             <p class="message hidden" id="signupMessage"></p>
         </form>
 
-        <!-- Divider -->
         <div class="divider"><span>or continue with</span></div>
 
-        <!-- Google Sign In -->
-        <button class="social-btn" onclick="signInWithGoogle()">
-            🔵 Continue with Google
-        </button>
+        <button class="social-btn" onclick="signInWithGoogle()">🔵 Continue with Google</button>
 
-        <!-- Flag -->
         <div class="flag-strip">
             <div class="saffron"></div>
             <div class="white"></div>
@@ -306,172 +289,142 @@
     </div>
 
     <script>
-        // ============================================
-        // FIREBASE CONFIG - YOUR REAL CONFIG!
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyB27SEZl6L2aDr0TCI8MIxzNjJ-45n9W6M",
-            authDomain: "unexploredbharat-9e939.firebaseapp.com",
-            projectId: "unexploredbharat-9e939",
-            storageBucket: "unexploredbharat-9e939.firebasestorage.app",
-            messagingSenderId: "589150204251",
-            appId: "1:589150204251:web:8e15203c5b3f4bc76e6a7e",
-            measurementId: "G-D9WGE2250T"
-        };
+    // ============================================
+    // FIREBASE CONFIG
+    // ============================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyB27SEZl6L2aDr0TCI8MIxzNjJ-45n9W6M",
+        authDomain: "unexploredbharat-9e939.firebaseapp.com",
+        projectId: "unexploredbharat-9e939",
+        storageBucket: "unexploredbharat-9e939.firebasestorage.app",
+        messagingSenderId: "589150204251",
+        appId: "1:589150204251:web:8e15203c5b3f4bc76e6a7e",
+        measurementId: "G-D9WGE2250T"
+    };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-        // ============================================
-        // TAB SWITCHING
-        // ============================================
-        function switchTab(tab) {
-            const signinTab = document.getElementById('signInTab');
-            const signupTab = document.getElementById('signUpTab');
-            const signinForm = document.getElementById('signinForm');
-            const signupForm = document.getElementById('signupForm');
-
-            if (tab === 'signin') {
-                signinTab.classList.add('active');
-                signupTab.classList.remove('active');
-                signinForm.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-            } else {
-                signupTab.classList.add('active');
-                signinTab.classList.remove('active');
-                signupForm.classList.remove('hidden');
-                signinForm.classList.add('hidden');
-            }
+    // ============================================
+    // TAB SWITCHING
+    // ============================================
+    function switchTab(tab) {
+        if (tab === 'signin') {
+            document.getElementById('signInTab').classList.add('active');
+            document.getElementById('signUpTab').classList.remove('active');
+            document.getElementById('signinForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+        } else {
+            document.getElementById('signUpTab').classList.add('active');
+            document.getElementById('signInTab').classList.remove('active');
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('signinForm').classList.add('hidden');
         }
-
-        // ============================================
-        // SHOW MESSAGE
-        // ============================================
-        function showMessage(elementId, message, isError = false) {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.className = 'message ' + (isError ? 'error-msg' : 'success-msg');
-            el.classList.remove('hidden');
-            setTimeout(() => el.classList.add('hidden'), 5000);
-        }
-
-        // ============================================
-        // SIGN IN WITH EMAIL & PASSWORD (REAL FIREBASE)
-        // ============================================
-        document.getElementById('signinForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('signinEmail').value.trim();
-            const password = document.getElementById('signinPassword').value;
-            const btn = document.getElementById('signinBtn');
-            
-            btn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
-            btn.disabled = true;
-
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                showMessage('signinMessage', '✅ Welcome back! Redirecting...');
-                
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-                
-            } catch (error) {
-                let message = 'Something went wrong.';
-                if (error.code === 'auth/user-not-found') message = '❌ No account found. Sign up first.';
-                if (error.code === 'auth/wrong-password') message = '❌ Incorrect password.';
-                if (error.code === 'auth/invalid-email') message = '❌ Please enter a valid email.';
-                if (error.code === 'auth/invalid-credential') message = '❌ Invalid email or password.';
-                showMessage('signinMessage', message, true);
-            }
-            
-            btn.innerHTML = 'Sign In →';
-            btn.disabled = false;
-        });
-
-        // ============================================
-        // SIGN UP WITH EMAIL & PASSWORD (REAL FIREBASE)
-        // ============================================
-        document.getElementById('signupForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('signupName').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const btn = document.getElementById('signupBtn');
-            
-            if (password.length < 8) {
-                showMessage('signupMessage', '❌ Password must be at least 8 characters.', true);
-                return;
-            }
-
-            btn.innerHTML = '<span class="loading-spinner"></span> Creating account...';
-            btn.disabled = true;
-
-            try {
-                const result = await auth.createUserWithEmailAndPassword(email, password);
-await result.user.updateProfile({ displayName: name });
-
-// Send verification email
-await result.user.sendEmailVerification();
-
-showMessage('signupMessage', '📧 Verification email sent! Check your inbox.');
-
-// DO NOT redirect to dashboard yet
-// User must verify email first
-
-} catch (error) {
-                
-            } catch (error) {
-                let message = 'Something went wrong.';
-                if (error.code === 'auth/email-already-in-use') message = '❌ Email already registered. Sign in instead.';
-                if (error.code === 'auth/weak-password') message = '❌ Password too weak. Use at least 6 characters.';
-                if (error.code === 'auth/invalid-email') message = '❌ Please enter a valid email.';
-                showMessage('signupMessage', message, true);
-            }
-            
-            btn.innerHTML = 'Create Account →';
-            btn.disabled = false;
-        });
-
-        // ============================================
-        // SIGN IN WITH GOOGLE (REAL FIREBASE)
-        // ============================================
-        async function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            
-            try {
-                await auth.signInWithPopup(provider);
-                window.location.href = 'dashboard.html';
-            } catch (error) {
-                showMessage('signinMessage', '❌ Google sign in failed. Try email instead.', true);
-            }
-        }
-
-        // ============================================
-        // AUTO-REDIRECT IF ALREADY LOGGED IN
-        // ============================================
-        auth.onAuthStateChanged((user) => {
-            if (user && window.location.pathname.includes('signin.html')) {
-                // Already logged in, go to dashboard
-                // Uncomment if you want auto-redirect:
-                // window.location.href = 'dashboard.html';
-            }
-        });
-        <button onclick="resendVerification()" style="background: transparent; border: none; color: #f0c27b; cursor: pointer; margin-top: 10px;">
-    Resend verification email
-</button>
-function resendVerification() {
-    const user = auth.currentUser;
-    if (user && !user.emailVerified) {
-        user.sendEmailVerification()
-            .then(() => alert('📧 Verification email resent!'))
-            .catch(() => alert('❌ Error. Try again later.'));
-    } else {
-        alert('No user found or already verified.');
     }
-}
+
+    // ============================================
+    // SHOW MESSAGE
+    // ============================================
+    function showMessage(id, msg, isError) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.className = 'message ' + (isError ? 'error-msg' : 'success-msg');
+        el.classList.remove('hidden');
+    }
+
+    // ============================================
+    // SIGN IN
+    // ============================================
+    document.getElementById('signinForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('signinEmail').value.trim();
+        const password = document.getElementById('signinPassword').value;
+        const btn = document.getElementById('signinBtn');
+        
+        btn.innerHTML = 'Signing in...';
+        btn.disabled = true;
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => window.location.href = 'dashboard.html')
+            .catch((error) => {
+                let msg = 'Error signing in.';
+                if (error.code === 'auth/user-not-found') msg = 'No account found.';
+                if (error.code === 'auth/wrong-password') msg = 'Wrong password.';
+                if (error.code === 'auth/invalid-credential') msg = 'Invalid email or password.';
+                if (error.code === 'auth/too-many-requests') msg = 'Too many attempts. Try later.';
+                showMessage('signinMessage', '❌ ' + msg, true);
+                btn.innerHTML = 'Sign In →';
+                btn.disabled = false;
+            });
+    });
+
+    // ============================================
+    // SIGN UP
+    // ============================================
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const btn = document.getElementById('signupBtn');
+        
+        if (!name || !email || !password) {
+            showMessage('signupMessage', '❌ Please fill all fields.', true);
+            return;
+        }
+        if (password.length < 6) {
+            showMessage('signupMessage', '❌ Password must be at least 6 characters.', true);
+            return;
+        }
+
+        btn.innerHTML = 'Creating account...';
+        btn.disabled = true;
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((result) => {
+                return result.user.updateProfile({ displayName: name })
+                    .then(() => result.user.sendEmailVerification());
+            })
+            .then(() => {
+                showMessage('signupMessage', '📧 Verification email sent! Check your inbox.', false);
+                document.getElementById('resendBtn').classList.remove('hidden');
+                btn.innerHTML = 'Create Account →';
+                btn.disabled = false;
+            })
+            .catch((error) => {
+                let msg = 'Error creating account.';
+                if (error.code === 'auth/email-already-in-use') msg = 'Email already registered.';
+                if (error.code === 'auth/weak-password') msg = 'Password too weak.';
+                if (error.code === 'auth/invalid-email') msg = 'Invalid email address.';
+                showMessage('signupMessage', '❌ ' + msg, true);
+                btn.innerHTML = 'Create Account →';
+                btn.disabled = false;
+            });
+    });
+
+    // ============================================
+    // RESEND VERIFICATION
+    // ============================================
+    function resendVerification() {
+        const user = auth.currentUser;
+        if (user && !user.emailVerified) {
+            user.sendEmailVerification()
+                .then(() => alert('📧 Verification email resent! Check your inbox.'))
+                .catch(() => alert('❌ Error. Please try again later.'));
+        } else {
+            alert('No user found or already verified.');
+        }
+    }
+
+    // ============================================
+    // GOOGLE SIGN IN
+    // ============================================
+    function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+            .then(() => window.location.href = 'dashboard.html')
+            .catch(() => showMessage('signinMessage', '❌ Google sign in failed. Try email instead.', true));
+    }
     </script>
 </body>
 </html>
