@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Unexplored Bharat</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -106,29 +111,6 @@
             color: #777;
         }
 
-        .otp-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .otp-box {
-            width: 50px;
-            height: 55px;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            border: 2px solid rgba(255, 153, 51, 0.3);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            outline: none;
-        }
-
-        .otp-box:focus {
-            border-color: #FF9933;
-        }
-
         .main-btn {
             width: 100%;
             padding: 15px;
@@ -147,6 +129,11 @@
         .main-btn:hover {
             transform: scale(1.02);
             box-shadow: 0 0 25px rgba(255, 153, 51, 0.5);
+        }
+
+        .main-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .divider {
@@ -194,16 +181,21 @@
             display: none;
         }
 
-        .success-msg {
-            color: #4caf50;
+        .message {
             font-size: 14px;
             margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .success-msg {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
         }
 
         .error-msg {
+            background: rgba(255, 82, 82, 0.2);
             color: #ff5252;
-            font-size: 14px;
-            margin-top: 15px;
         }
 
         .flag-strip {
@@ -234,6 +226,21 @@
         .back-link:hover {
             text-decoration: underline;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -251,56 +258,41 @@
         <!-- SIGN IN FORM -->
         <form id="signinForm">
             <div class="input-group">
-                <label>Email or Phone Number</label>
-                <input type="text" id="signinInput" placeholder="Enter email or phone number" required>
+                <label>Email</label>
+                <input type="email" id="signinEmail" placeholder="Enter your email" required>
             </div>
-            <div class="input-group" id="signinPasswordGroup">
+            <div class="input-group">
                 <label>Password</label>
-                <input type="password" id="signinPassword" placeholder="Enter your password">
+                <input type="password" id="signinPassword" placeholder="Enter your password" required>
             </div>
-            <button type="submit" class="main-btn">Sign In →</button>
+            <button type="submit" class="main-btn" id="signinBtn">Sign In →</button>
+            <p class="message hidden" id="signinMessage"></p>
         </form>
 
-        <!-- SIGN UP FORM (Hidden by default) -->
+        <!-- SIGN UP FORM -->
         <form id="signupForm" class="hidden">
             <div class="input-group">
                 <label>Full Name</label>
                 <input type="text" id="signupName" placeholder="Enter your full name" required>
             </div>
             <div class="input-group">
-                <label>Email or Phone Number</label>
-                <input type="text" id="signupInput" placeholder="Enter email or phone number" required>
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email" required>
             </div>
-            <div class="input-group" id="signupPasswordGroup">
-                <label>Create Password</label>
-                <input type="password" id="signupPassword" placeholder="Min. 8 characters">
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Min. 8 characters" required>
             </div>
-            <div class="input-group hidden" id="otpGroup">
-                <label>Enter OTP sent to your phone</label>
-                <div class="otp-container">
-                    <input type="text" class="otp-box" maxlength="1" id="otp1">
-                    <input type="text" class="otp-box" maxlength="1" id="otp2">
-                    <input type="text" class="otp-box" maxlength="1" id="otp3">
-                    <input type="text" class="otp-box" maxlength="1" id="otp4">
-                    <input type="text" class="otp-box" maxlength="1" id="otp5">
-                    <input type="text" class="otp-box" maxlength="1" id="otp6">
-                </div>
-                <button type="button" class="main-btn" onclick="verifyOTP()" style="margin-top: 15px;">Verify OTP</button>
-            </div>
-            <button type="submit" class="main-btn" id="signupBtn">Continue →</button>
-            <p class="success-msg hidden" id="successMsg">✅ Account created successfully! Welcome to Unexplored Bharat!</p>
-            <p class="error-msg hidden" id="errorMsg"></p>
+            <button type="submit" class="main-btn" id="signupBtn">Create Account →</button>
+            <p class="message hidden" id="signupMessage"></p>
         </form>
 
         <!-- Divider -->
         <div class="divider"><span>or continue with</span></div>
 
-        <!-- Social Buttons -->
-        <button class="social-btn" onclick="alert('Google Sign In coming soon!')">
+        <!-- Google Sign In -->
+        <button class="social-btn" onclick="signInWithGoogle()">
             🔵 Continue with Google
-        </button>
-        <button class="social-btn" onclick="alert('Facebook Sign In coming soon!')">
-            🔷 Continue with Facebook
         </button>
 
         <!-- Flag -->
@@ -314,7 +306,26 @@
     </div>
 
     <script>
-        // Switch between Sign In and Sign Up tabs
+        // ============================================
+        // FIREBASE CONFIG - YOUR REAL CONFIG!
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyB27SEZl6L2aDr0TCI8MIxzNjJ-45n9W6M",
+            authDomain: "unexploredbharat-9e939.firebaseapp.com",
+            projectId: "unexploredbharat-9e939",
+            storageBucket: "unexploredbharat-9e939.firebasestorage.app",
+            messagingSenderId: "589150204251",
+            appId: "1:589150204251:web:8e15203c5b3f4bc76e6a7e",
+            measurementId: "G-D9WGE2250T"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
         function switchTab(tab) {
             const signinTab = document.getElementById('signInTab');
             const signupTab = document.getElementById('signUpTab');
@@ -334,118 +345,114 @@
             }
         }
 
-        // Detect if input is email or phone
-        function isEmail(input) {
-            return input.includes('@');
+        // ============================================
+        // SHOW MESSAGE
+        // ============================================
+        function showMessage(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = 'message ' + (isError ? 'error-msg' : 'success-msg');
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
         }
 
-        function isPhone(input) {
-            return /^\d{10,}$/.test(input.replace(/[\s\-\(\)]/g, ''));
-        }
-
-        // SIGN IN LOGIC
-        document.getElementById('signinForm').addEventListener('submit', function(e) {
+        // ============================================
+        // SIGN IN WITH EMAIL & PASSWORD (REAL FIREBASE)
+        // ============================================
+        document.getElementById('signinForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const input = document.getElementById('signinInput').value.trim();
+            
+            const email = document.getElementById('signinEmail').value.trim();
+            const password = document.getElementById('signinPassword').value;
+            const btn = document.getElementById('signinBtn');
+            
+            btn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
+            btn.disabled = true;
 
-            if (!input) {
-                alert('Please enter email or phone number');
-                return;
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showMessage('signinMessage', '✅ Welcome back! Redirecting...');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+                
+            } catch (error) {
+                let message = 'Something went wrong.';
+                if (error.code === 'auth/user-not-found') message = '❌ No account found. Sign up first.';
+                if (error.code === 'auth/wrong-password') message = '❌ Incorrect password.';
+                if (error.code === 'auth/invalid-email') message = '❌ Please enter a valid email.';
+                if (error.code === 'auth/invalid-credential') message = '❌ Invalid email or password.';
+                showMessage('signinMessage', message, true);
             }
-
-            if (isEmail(input)) {
-                const password = document.getElementById('signinPassword').value;
-                if (!password) {
-                    alert('Please enter your password');
-                    return;
-                }
-                alert('✅ Signed in with Email!\nWelcome back to Unexplored Bharat!');
-            } else if (isPhone(input)) {
-                alert('📱 OTP sent to ' + input + '\n(Simulated - check console)');
-                console.log('OTP for ' + input + ': 472891');
-            } else {
-                alert('⚠️ Please enter a valid email or 10-digit phone number');
-            }
+            
+            btn.innerHTML = 'Sign In →';
+            btn.disabled = false;
         });
 
-        // SIGN UP LOGIC
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        // ============================================
+        // SIGN UP WITH EMAIL & PASSWORD (REAL FIREBASE)
+        // ============================================
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             const name = document.getElementById('signupName').value.trim();
-            const input = document.getElementById('signupInput').value.trim();
-            const passwordGroup = document.getElementById('signupPasswordGroup');
-            const otpGroup = document.getElementById('otpGroup');
-            const signupBtn = document.getElementById('signupBtn');
-            const successMsg = document.getElementById('successMsg');
-            const errorMsg = document.getElementById('errorMsg');
-
-            if (!name || !input) {
-                alert('Please fill in all fields');
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const btn = document.getElementById('signupBtn');
+            
+            if (password.length < 8) {
+                showMessage('signupMessage', '❌ Password must be at least 8 characters.', true);
                 return;
             }
 
-            if (isEmail(input)) {
-                const password = document.getElementById('signupPassword').value;
-                if (!password || password.length < 8) {
-                    alert('Password must be at least 8 characters');
-                    return;
-                }
-                successMsg.classList.remove('hidden');
-                errorMsg.classList.add('hidden');
-                alert('✅ Account created with Email!\nWelcome, ' + name + '! 🇮🇳');
-            } else if (isPhone(input)) {
-                // Hide password, show OTP
-                passwordGroup.classList.add('hidden');
-                otpGroup.classList.remove('hidden');
-                signupBtn.classList.add('hidden');
-                alert('📱 OTP sent to ' + input + '\nFor demo, enter: 4 7 2 8 9 1');
-                console.log('OTP for ' + input + ': 472891');
-            } else {
-                errorMsg.textContent = '⚠️ Please enter a valid email or 10-digit phone number';
-                errorMsg.classList.remove('hidden');
+            btn.innerHTML = '<span class="loading-spinner"></span> Creating account...';
+            btn.disabled = true;
+
+            try {
+                const result = await auth.createUserWithEmailAndPassword(email, password);
+                await result.user.updateProfile({ displayName: name });
+                
+                showMessage('signupMessage', '✅ Account created! Welcome, ' + name + '! 🇮🇳');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
+            } catch (error) {
+                let message = 'Something went wrong.';
+                if (error.code === 'auth/email-already-in-use') message = '❌ Email already registered. Sign in instead.';
+                if (error.code === 'auth/weak-password') message = '❌ Password too weak. Use at least 6 characters.';
+                if (error.code === 'auth/invalid-email') message = '❌ Please enter a valid email.';
+                showMessage('signupMessage', message, true);
             }
+            
+            btn.innerHTML = 'Create Account →';
+            btn.disabled = false;
         });
 
-        // OTP VERIFICATION
-        function verifyOTP() {
-            const otp = [
-                document.getElementById('otp1').value,
-                document.getElementById('otp2').value,
-                document.getElementById('otp3').value,
-                document.getElementById('otp4').value,
-                document.getElementById('otp5').value,
-                document.getElementById('otp6').value,
-            ].join('');
-
-            if (otp === '472891') {
-                document.getElementById('successMsg').classList.remove('hidden');
-                document.getElementById('otpGroup').classList.add('hidden');
-                alert('✅ Phone verified! Welcome to Unexplored Bharat! 🇮🇳');
-            } else {
-                alert('❌ Invalid OTP. Please try again.\nHint: 472891');
+        // ============================================
+        // SIGN IN WITH GOOGLE (REAL FIREBASE)
+        // ============================================
+        async function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            try {
+                await auth.signInWithPopup(provider);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                showMessage('signinMessage', '❌ Google sign in failed. Try email instead.', true);
             }
         }
 
-        // Auto-focus next OTP box
-        document.querySelectorAll('.otp-box').forEach((box, index, boxes) => {
-            box.addEventListener('input', () => {
-                if (box.value.length === 1 && index < boxes.length - 1) {
-                    boxes[index + 1].focus();
-                }
-            });
-        });
-
-        // Real-time detection on signup input
-        document.getElementById('signupInput').addEventListener('input', function() {
-            const val = this.value.trim();
-            const passwordGroup = document.getElementById('signupPasswordGroup');
-            const otpGroup = document.getElementById('otpGroup');
-            const signupBtn = document.getElementById('signupBtn');
-
-            if (isEmail(val)) {
-                passwordGroup.classList.remove('hidden');
-                otpGroup.classList.add('hidden');
-                signupBtn.classList.remove('hidden');
+        // ============================================
+        // AUTO-REDIRECT IF ALREADY LOGGED IN
+        // ============================================
+        auth.onAuthStateChanged((user) => {
+            if (user && window.location.pathname.includes('signin.html')) {
+                // Already logged in, go to dashboard
+                // Uncomment if you want auto-redirect:
+                // window.location.href = 'dashboard.html';
             }
         });
     </script>

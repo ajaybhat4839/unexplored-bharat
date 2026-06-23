@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Unexplored Bharat</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a0a00, #2d1500, #4a2000);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,153,51,0.3);
+        }
+        
+        .nav-logo {
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #FF9933, #FFFFFF, #138808);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FF9933, #ff6f00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .signout-btn {
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .signout-btn:hover {
+            background: rgba(255,82,82,0.3);
+            border-color: #ff5252;
+        }
+        
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 40px;
+        }
+        
+        .welcome-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,153,51,0.3);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .welcome-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .user-email {
+            color: #f0c27b;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF9933;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .explore-btn {
+            padding: 14px 40px;
+            background: linear-gradient(45deg, #FF9933, #ff6f00);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .explore-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255,153,51,0.5);
+        }
+        
+        .flag-strip {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 30px;
+        }
+        
+        .flag-strip div {
+            width: 60px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        
+        .saffron { background: #FF9933; }
+        .white { background: #FFFFFF; }
+        .green { background: #138808; }
+        
+        .loading {
+            text-align: center;
+            padding: 100px;
+            font-size: 18px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-logo">Unexplored Bharat</div>
+        <div class="nav-user">
+            <div class="user-avatar" id="userInitial">U</div>
+            <span id="navUsername">Explorer</span>
+            <button class="signout-btn" onclick="handleSignOut()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-card">
+            <div class="welcome-icon">🇮🇳</div>
+            <h2 class="welcome-title">Welcome, <span id="displayName">Explorer</span>!</h2>
+            <p class="user-email" id="userEmail">Loading...</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Destinations<br>Explored</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Experiences<br>Booked</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Products<br>Ordered</div>
+                </div>
+            </div>
+            
+            <button class="explore-btn" onclick="alert('🏞️ Destinations coming soon!')">
+                Explore Hidden Bharat →
+            </button>
+            
+            <div class="flag-strip">
+                <div class="saffron"></div>
+                <div class="white"></div>
+                <div class="green"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIG - YOUR REAL CONFIG!
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyB27SEZl6L2aDr0TCI8MIxzNjJ-45n9W6M",
+            authDomain: "unexploredbharat-9e939.firebaseapp.com",
+            projectId: "unexploredbharat-9e939",
+            storageBucket: "unexploredbharat-9e939.firebasestorage.app",
+            messagingSenderId: "589150204251",
+            appId: "1:589150204251:web:8e15203c5b3f4bc76e6a7e",
+            measurementId: "G-D9WGE2250T"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // ============================================
+        // CHECK USER & LOAD DATA
+        // ============================================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is logged in
+                const name = user.displayName || 'Explorer';
+                const email = user.email || '';
+                const initial = name.charAt(0).toUpperCase();
+                
+                document.getElementById('displayName').textContent = name;
+                document.getElementById('userEmail').textContent = email;
+                document.getElementById('navUsername').textContent = name;
+                document.getElementById('userInitial').textContent = initial;
+                
+                console.log('✅ User logged in:', email);
+            } else {
+                // No user, redirect to sign in
+                window.location.href = 'signin.html';
+            }
+        });
+
+        // ============================================
+        // SIGN OUT
+        // ============================================
+        function handleSignOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                auth.signOut().then(() => {
+                    window.location.href = 'signin.html';
+                });
+            }
+        }
+    </script>
+</body>
+</html>
